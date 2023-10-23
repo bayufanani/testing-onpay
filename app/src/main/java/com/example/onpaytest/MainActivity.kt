@@ -1,6 +1,9 @@
 package com.example.onpaytest
 
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
+import android.provider.Settings.Global
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
@@ -22,32 +25,37 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.VectorPainter
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.onpaytest.ui.theme.OnpayTestTheme
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import java.util.Timer
+import kotlin.concurrent.timerTask
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             OnpayTestTheme {
-                val navController = rememberNavController()
-                NavHost(navController = navController, startDestination = "SplashScreen") {
-                    composable("SplashScreen") {
-                        SplashScreen()
-                    }
-
-                    composable("LoginScreen") {
-                        LoginScreen()
-                    }
-                }
                 // A surface container using the 'background' color from the theme
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background,
                 ) {
-                    SplashScreen()
+                    val navController = rememberNavController()
+                    NavHost(navController = navController, startDestination = "SplashScreen") {
+                        composable("SplashScreen") {
+                            SplashScreen(navController)
+                        }
+                        composable("LoginScreen") {
+                            LoginScreen()
+                        }
+                    }
                 }
             }
         }
@@ -55,14 +63,21 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun SplashScreen(modifier: Modifier = Modifier) {
-    val navController = rememberNavController()
-    Box(modifier = modifier.fillMaxSize().clickable(
-        onClick = {
-            navController.navigate("LoginScreen")
-        }
-    ), contentAlignment = Alignment.Center) {
-        Image(imageVector = ImageVector.vectorResource(R.drawable.logo), contentDescription = "Logo")
+fun SplashScreen(navController: NavController, modifier: Modifier = Modifier) {
+    Handler(Looper.getMainLooper()).postDelayed({
+        navController.navigate("LoginScreen")
+    }, 3000)
+    Box(modifier = modifier
+        .fillMaxSize()
+        .clickable(
+            onClick = {
+//            navController.navigate("LoginScreen")
+            }
+        ), contentAlignment = Alignment.Center) {
+        Image(
+            imageVector = ImageVector.vectorResource(R.drawable.logo),
+            contentDescription = "Logo"
+        )
     }
 }
 
@@ -70,6 +85,6 @@ fun SplashScreen(modifier: Modifier = Modifier) {
 @Composable
 fun SplashScreenPreview() {
     OnpayTestTheme {
-        SplashScreen()
+        SplashScreen(rememberNavController())
     }
 }
